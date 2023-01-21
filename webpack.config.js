@@ -1,9 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-
 module.exports = {
-
   // change to production when complete
   mode: 'development',
   entry: './src/index.js',
@@ -39,8 +37,8 @@ module.exports = {
       {
         test: /\.m?js$/,
         exclude: /node_modules/,
-        use: ["babel-loader"]
-        }
+        use: ['babel-loader'],
+      },
     ],
   },
 };

@@ -1,18 +1,20 @@
-import Die from "./components/Die";
-import { useState } from "react";
-import { nanoid } from "nanoid";
+import { nanoid } from 'nanoid';
+import Die from './components/Die';
+import { useState, useEffect } from 'react';
 
 export default function App() {
-  function allNewDice() {
+  const rollDie = () => Math.ceil(Math.random() * 6);
+
+  function rollTenDice() {
     const array = [];
     for (let i = 0; i < 10; i++) {
-      array.push(Math.ceil(Math.random() * 6));
+      array.push(rollDie());
     }
     return array;
   }
 
   const [dice, setDice] = useState(
-    allNewDice().map((item) => ({
+    rollTenDice().map((item) => ({
       value: item,
       isHeld: false,
       id: nanoid(),
@@ -20,17 +22,9 @@ export default function App() {
   );
 
   function rollDice() {
-    const newNums = allNewDice();
-    setDice((prev) => {
-      const newArray = [];
-      for (let die of prev) {
-        newArray.push({
-          ...die,
-          value: die.isHeld ? die.value : newNums.shift(),
-        });
-      }
-      return newArray;
-    });
+    setDice((prev) =>
+      prev.map((die) => (die.isHeld ? die : { ...die, value: rollDie() }))
+    );
   }
 
   function toggleHeld(id) {
@@ -39,10 +33,24 @@ export default function App() {
     );
   }
 
+  const [tenzies, setTenzies] = useState(false);
+
+  useEffect(() => {
+    console.log('Dice state has changed.')
+  }, [dice])
+
+
+
   return (
     <main>
-      <div className='text'></div>
-      <div className="dice">
+      <div className='text'>
+        <h1>Tenzies</h1>
+        <p>
+          Roll until all dice are the same. Click each die to freeze it at its
+          current value between rolls.
+        </p>
+      </div>
+      <div className='dice'>
         {dice.map((die) => (
           <Die
             key={die.id}
@@ -54,7 +62,7 @@ export default function App() {
           />
         ))}
       </div>
-      <button className="roll-button" onClick={rollDice}>
+      <button className='roll-button' onClick={rollDice}>
         Roll
       </button>
     </main>
