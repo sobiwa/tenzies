@@ -1,11 +1,18 @@
 import { nanoid } from 'nanoid';
 import Die from './components/Die';
+import Rolls from './components/Rolls';
 import { useState, useEffect } from 'react';
 import Confetti from 'react-confetti';
 import useWindowSize from './useWindowSize';
 
 export default function App() {
   const [tenzies, setTenzies] = useState(false);
+  const [rolls, setRolls] = useState(1);
+  const [highScore, setHighScore] = useState('-');
+
+  useEffect(() => {
+    setHighScore(localStorage.getItem('highScore') || '-');
+  }, []);
 
   function rollDie() {
     return Math.ceil(Math.random() * 6);
@@ -33,6 +40,7 @@ export default function App() {
     setDice((prev) =>
       prev.map((die) => (die.isHeld ? die : { ...die, value: rollDie() }))
     );
+    setRolls((prev) => prev + 1);
   }
 
   function toggleHeld(id) {
@@ -49,8 +57,16 @@ export default function App() {
     }
   }, [dice]);
 
+  useEffect(() => {
+    if (tenzies && (rolls < highScore || highScore === '-')) {
+      setHighScore(rolls);
+      localStorage.setItem('highScore', rolls);
+    }
+  }, [tenzies]);
+
   function newGame() {
     setDice(newDice());
+    setRolls(1);
     setTenzies(false);
   }
 
@@ -58,8 +74,9 @@ export default function App() {
 
   return (
     <main>
+      {tenzies && <Confetti width={size.width} height={size.height} />}
+      <Rolls hiScore={highScore} rolls={rolls} />
       <div className='text'>
-        {tenzies && <Confetti width={size.width} height={size.height} />}
         <h1>Tenzies</h1>
         <p>
           Roll until all dice are the same. Click each die to freeze it at its
